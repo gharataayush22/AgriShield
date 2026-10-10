@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Diagnosis Result - AgriShield{% endblock %}
+
+{% block content %}
+<h1>Diagnosis Result</h1>
+
+<p class="context">
+    Crop: <b>{{ crop if crop else "Not sure" }}</b> |
+    Weather: <b>{{ weather|capitalize if weather else "Not sure" }}</b>
+</p>
+
+{% if empty %}
+    <p>You did not select any symptoms. Please go back and select at least one.</p>
+{% elif results|length == 0 %}
+    <p>No matching disease found for this crop and these symptoms.</p>
+{% else %}
+    {% if saved %}
+        <p class="saved">✔ Saved to your <a href="/history">track record</a>.</p>
+    {% elif not farmer_name %}
+        <p class="note"><a href="/track">Log in</a> next time to save your diagnoses.</p>
+    {% endif %}
+
+    {% for r in results %}
+    <div class="card">
+        <h2>{{ r.name }} <span class="crop">({{ r.crop }})</span></h2>
+        <p class="match">
+            Score: {{ r.score }} | Symptom match: {{ r.percent }}%
+            {% if r.weather_match %}<span class="tag">Weather matches</span>{% endif %}
+        </p>
+        <p>{{ r.description }}</p>
+
+        <h3>💊 Medication</h3>
+        <ul>
+            {% for t in r.treatments %}
+            <li><b>{{ t[0] }}</b>: {{ t[1] }}. {{ t[2] }}</li>
+            {% endfor %}
+        </ul>
+
+        <h3>⚠️ Precautions</h3>
+        <ul>
+            {% for p in r.precautions %}
+            <li>{{ p }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<a class="back" href="/">← Check again</a>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}History - AgriShield{% endblock %}
+
+{% block content %}
+<h1>Track Record of {{ farmer_name }}</h1>
+
+{% if records|length == 0 %}
+    <p>No diagnoses saved yet. <a href="/">Make your first diagnosis.</a></p>
+{% else %}
+<div class="table-wrap">
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Crop</th>
+        <th>Weather</th>
+        <th>Symptoms</th>
+        <th>Top result</th>
+        <th>Score</th>
+    </tr>
+    {% for r in records %}
+    <tr>
+        <td>{{ r[0].strftime('%d %b %Y, %I:%M %p') }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2]|capitalize }}</td>
+        <td>{{ r[3] }}</td>
+        <td><b>{{ r[4] }}</b></td>
+        <td>{{ r[5] }} ({{ r[6] }}%)</td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+{% endif %}
+{% endblock %}

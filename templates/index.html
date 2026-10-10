@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}AgriShield - Diagnose{% endblock %}
+
+{% block content %}
+<h1>Plant Disease Diagnosis</h1>
+
+{% if not farmer_name %}
+<p class="note">
+    Tip: <a href="/track">log in or register</a> first, and your diagnoses
+    will be saved to your track record.
+</p>
+{% endif %}
+
+<form action="/diagnose" method="POST">
+
+    <div class="row">
+        <div>
+            <label for="crop"><b>Which crop are you growing?</b></label><br>
+            <select name="crop" id="crop">
+                <option value="">Not sure</option>
+                {% for c in crops %}
+                <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="weather"><b>What is the weather like?</b></label><br>
+            <select name="weather" id="weather">
+                <option value="">Not sure</option>
+                {% for w in weathers %}
+                <option value="{{ w }}">{{ w|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <h3>Select the symptoms you see on your plant:</h3>
+
+    <div class="symptom-list">
+        {% for s in symptoms %}
+        <label class="symptom">
+            <input type="checkbox" name="symptoms" value="{{ s[0] }}">
+            {{ s[1] }}
+        </label>
+        {% endfor %}
+    </div>
+
+    <button type="submit">Diagnose</button>
+</form>
+{% endblock %}

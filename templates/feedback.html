@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Feedback - AgriShield{% endblock %}
+
+{% block content %}
+<h1>Farmer Feedback</h1>
+
+{% if farmer_name %}
+<form action="/feedback" method="POST" class="box">
+    <h3>Leave your feedback</h3>
+    <label for="rating">Rating:</label>
+    <select name="rating" id="rating">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Okay</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Bad</option>
+    </select>
+    <textarea name="message" rows="3" maxlength="500"
+              placeholder="How did AgriShield help you?" required></textarea>
+    <button type="submit">Submit feedback</button>
+</form>
+{% else %}
+<p class="note"><a href="/track">Log in</a> to leave your own feedback.</p>
+{% endif %}
+
+<h3>What others are saying</h3>
+{% if entries|length == 0 %}
+    <p>No feedback yet. Be the first!</p>
+{% endif %}
+
+{% for e in entries %}
+<div class="card">
+    <p class="stars">{{ "★" * e[1] }}{{ "☆" * (5 - e[1]) }}</p>
+    <p>{{ e[2] }}</p>
+    <p class="by">— {{ e[0] }}, {{ e[3].strftime('%d %b %Y') }}</p>
+</div>
+{% endfor %}
+{% endblock %}
