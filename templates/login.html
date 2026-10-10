@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Log in - AgriShield{% endblock %}
+
+{% block content %}
+<div class="page-center">
+    <div class="narrow">
+        <h1>Welcome back</h1>
+        <p>Enter your name and your ID to continue.</p>
+
+        <form action="/login" method="POST">
+            <input type="text" name="name" placeholder="Your name" required>
+            <input type="text" name="code" placeholder="Your ID (FARM-1234)" required>
+            <button type="submit">Log in</button>
+        </form>
+
+        <p class="small-link">New here? <a href="/">Register</a></p>
+    </div>
+</div>
+{% endblock %}

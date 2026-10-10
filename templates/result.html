@@ -21,8 +21,11 @@
     {% endif %}
 
     {% for r in results %}
-    <div class="card">
-        <h2>{{ r.name }} <span class="crop">({{ r.crop }})</span></h2>
+    <div class="card {% if loop.first %}top-card{% endif %}">
+        <h2>
+            {% if loop.first %}<span class="best">🏆 Best match</span>{% else %}<span class="rank">#{{ loop.index }}</span>{% endif %}
+            {{ r.name }} <span class="crop">({{ r.crop }})</span>
+        </h2>
         <p class="match">
             Score: {{ r.score }} | Symptom match: {{ r.percent }}%
             {% if r.weather_match %}<span class="tag">Weather matches</span>{% endif %}
@@ -46,5 +49,6 @@
     {% endfor %}
 {% endif %}
 
-<a class="back" href="/">← Check again</a>
+<a class="back" href="/check">← Check again</a> &nbsp;|&nbsp;
+<a class="back" href="/menu">Menu</a>
 {% endblock %}

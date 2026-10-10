@@ -143,3 +143,109 @@ th { background: #e8f5e9; }
 
 .stars { color: #f9a825; font-size: 1.2em; margin: 0; }
 .by { color: #666; font-size: 0.9em; }
+
+/* ---------- page transitions ---------- */
+@keyframes pageIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.container { animation: pageIn 0.4s ease; }
+
+body.leaving .container {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ---------- centred pages (start, login, menu) ---------- */
+.page-center {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.narrow { width: 100%; max-width: 380px; }
+.narrow input[type="text"] { text-align: center; }
+.narrow button { width: 100%; }
+
+.navbar span.brand { color: white; font-weight: bold; font-size: 1.2em; }
+
+.warn-box {
+    background: #fff8e1;
+    border-left: 4px solid #f9a825;
+    padding: 12px 15px;
+    text-align: left;
+    border-radius: 6px;
+    font-size: 0.92em;
+    color: #5d4a00;
+    margin: 18px 0;
+}
+
+.small-link { font-size: 0.85em; color: #666; margin-top: 25px; }
+.small-link a { color: #2e7d32; }
+
+/* ---------- menu buttons ---------- */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.menu-btn {
+    display: block;
+    background: #2e7d32;
+    color: white;
+    text-decoration: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 18px;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.menu-btn:hover {
+    background: #1b5e20;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.menu-btn.logout {
+    background: white;
+    color: #c62828;
+    border: 2px solid #c62828;
+    margin-top: 25px;
+}
+
+.menu-btn.logout:hover { background: #c62828; color: white; }
+
+.top-card {
+    border: 2px solid #2e7d32;
+    background: #f6fbf6;
+}
+
+.best {
+    display: inline-block;
+    background: #2e7d32;
+    color: white;
+    font-size: 0.55em;
+    padding: 3px 10px;
+    border-radius: 12px;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.rank {
+    display: inline-block;
+    background: #e0e0e0;
+    color: #555;
+    font-size: 0.55em;
+    padding: 3px 10px;
+    border-radius: 12px;
+    vertical-align: middle;
+    margin-right: 6px;
+}

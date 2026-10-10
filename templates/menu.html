@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Menu - AgriShield{% endblock %}
+
+{% block content %}
+<div class="page-center">
+    <div class="narrow">
+        <h1>Hello, {{ farmer_name }}!</h1>
+        <p>What would you like to do?</p>
+
+        <div class="menu">
+            <a class="menu-btn" href="/check">🔍 Diagnose a plant</a>
+            <a class="menu-btn" href="/history">📋 Track record</a>
+            <a class="menu-btn" href="/feedback">💬 Feedback</a>
+            <a class="menu-btn logout" href="/logout">Log out</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

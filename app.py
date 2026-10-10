@@ -20,11 +20,99 @@ def inject_farmer():
     return {"farmer_name": session.get("farmer_name")}
 
 
+# Everyone must be logged in, except on these pages
+@app.before_request
+def require_login():
+    open_pages = ["start", "login", "register", "static"]
+    if request.endpoint not in open_pages and "farmer_id" not in session:
+        return redirect(url_for("start"))
+
+
 # ---------------------------------------------------------------
-# HOME + DIAGNOSIS
+# START (register), LOGIN, LOGOUT, MENU
 # ---------------------------------------------------------------
 @app.route("/")
-def home():
+def start():
+    if "farmer_id" in session:
+        return redirect(url_for("menu"))
+    return render_template("start.html")
+
+
+@app.route("/register", methods=["POST"])
+def register():
+    name = request.form.get("name", "").strip()
+    if not name:
+        flash("Please enter your name.")
+        return redirect(url_for("start"))
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Generate a unique ID like FARM-4821
+    while True:
+        code = "FARM-" + str(secrets.randbelow(9000) + 1000)
+        cur.execute("SELECT 1 FROM farmers WHERE farmer_code = %s;", (code,))
+        if cur.fetchone() is None:
+            break
+
+    cur.execute(
+        "INSERT INTO farmers (name, farmer_code) VALUES (%s, %s) RETURNING farmer_id;",
+        (name, code),
+    )
+    farmer_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    session["farmer_id"] = farmer_id
+    session["farmer_name"] = name
+    return render_template("welcome.html", name=name, code=code)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("login.html")
+
+    name = request.form.get("name", "").strip()
+    code = request.form.get("code", "").strip().upper()
+
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT farmer_id, name FROM farmers "
+        "WHERE LOWER(name) = LOWER(%s) AND farmer_code = %s;",
+        (name, code),
+    )
+    farmer = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if farmer is None:
+        flash("Name and ID do not match. Please try again.")
+        return redirect(url_for("login"))
+
+    session["farmer_id"] = farmer[0]
+    session["farmer_name"] = farmer[1]
+    return redirect(url_for("menu"))
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("start"))
+
+
+@app.route("/menu")
+def menu():
+    return render_template("menu.html")
+
+
+# ---------------------------------------------------------------
+# DIAGNOSIS
+# ---------------------------------------------------------------
+@app.route("/check")
+def check():
     conn = get_connection()
     cur = conn.cursor()
 
@@ -84,7 +172,7 @@ def diagnose():
                  CASE WHEN d.favored_weather = %(weather)s
                       THEN %(bonus)s ELSE 0 END DESC,
                  d.disease_name
-        LIMIT 3;
+        LIMIT 5;
         """,
         params,
     )
@@ -123,9 +211,9 @@ def diagnose():
             }
         )
 
-    # If a farmer is logged in, save the top result to their history
+    # Save the top result to the farmer's history
     saved = False
-    if "farmer_id" in session and results:
+    if results:
         cur.execute(
             "SELECT symptom_name FROM symptoms "
             "WHERE symptom_id = ANY(%s) ORDER BY symptom_name;",
@@ -160,81 +248,10 @@ def diagnose():
 
 
 # ---------------------------------------------------------------
-# TRACK RECORD: register, login, logout, history
+# HISTORY
 # ---------------------------------------------------------------
-@app.route("/track")
-def track():
-    return render_template("track.html")
-
-
-@app.route("/register", methods=["POST"])
-def register():
-    name = request.form.get("name", "").strip()
-    if not name:
-        flash("Please enter your name.")
-        return redirect(url_for("track"))
-
-    conn = get_connection()
-    cur = conn.cursor()
-
-    # Generate a unique ID like FARM-4821
-    while True:
-        code = "FARM-" + str(secrets.randbelow(9000) + 1000)
-        cur.execute("SELECT 1 FROM farmers WHERE farmer_code = %s;", (code,))
-        if cur.fetchone() is None:
-            break
-
-    cur.execute(
-        "INSERT INTO farmers (name, farmer_code) VALUES (%s, %s) RETURNING farmer_id;",
-        (name, code),
-    )
-    farmer_id = cur.fetchone()[0]
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    session["farmer_id"] = farmer_id
-    session["farmer_name"] = name
-    return render_template("welcome.html", name=name, code=code)
-
-
-@app.route("/login", methods=["POST"])
-def login():
-    name = request.form.get("name", "").strip()
-    code = request.form.get("code", "").strip().upper()
-
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT farmer_id, name FROM farmers "
-        "WHERE LOWER(name) = LOWER(%s) AND farmer_code = %s;",
-        (name, code),
-    )
-    farmer = cur.fetchone()
-    cur.close()
-    conn.close()
-
-    if farmer is None:
-        flash("Name and ID do not match. Please try again.")
-        return redirect(url_for("track"))
-
-    session["farmer_id"] = farmer[0]
-    session["farmer_name"] = farmer[1]
-    return redirect(url_for("history"))
-
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("home"))
-
-
 @app.route("/history")
 def history():
-    if "farmer_id" not in session:
-        flash("Please log in to see your track record.")
-        return redirect(url_for("track"))
-
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
@@ -262,12 +279,6 @@ def feedback():
     cur = conn.cursor()
 
     if request.method == "POST":
-        if "farmer_id" not in session:
-            flash("Please log in to leave feedback.")
-            cur.close()
-            conn.close()
-            return redirect(url_for("track"))
-
         message = request.form.get("message", "").strip()
         rating = request.form.get("rating", "")
 

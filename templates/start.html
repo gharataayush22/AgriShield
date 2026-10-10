@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Welcome - AgriShield{% endblock %}
+
+{% block content %}
+<div class="page-center">
+    <div class="narrow">
+        <h1>Welcome to AgriShield</h1>
+        <p>Plant disease diagnosis and treatment, made simple.</p>
+
+        <form action="/register" method="POST">
+            <input type="text" name="name" placeholder="Enter your name" required>
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="warn-box">
+            <b>Remember your code!</b><br>
+            After you register, we will give you a unique ID like
+            <b>FARM-4821</b>. You need your name and this ID to log in again
+            and see your past diagnoses. It is shown only once and cannot
+            be recovered, so write it down.
+        </div>
+
+        <p class="small-link">Existing user? <a href="/login">Log in</a></p>
+    </div>
+</div>
+{% endblock %}

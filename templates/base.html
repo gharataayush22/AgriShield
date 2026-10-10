@@ -8,18 +8,15 @@
 </head>
 <body>
     <nav class="navbar">
-        <a class="brand" href="/">🌱 AgriShield</a>
-        <div class="links">
-            <a href="/">Diagnose</a>
-            <a href="/history">Track Record</a>
-            <a href="/feedback">Feedback</a>
-            {% if farmer_name %}
+        {% if farmer_name %}
+            <a class="brand" href="/menu">🌱 AgriShield</a>
+            <div class="links">
+                <a href="/menu">Menu</a>
                 <span class="user">Hi, {{ farmer_name }}</span>
-                <a href="/logout">Logout</a>
-            {% else %}
-                <a href="/track">Login</a>
-            {% endif %}
-        </div>
+            </div>
+        {% else %}
+            <span class="brand">🌱 AgriShield</span>
+        {% endif %}
     </nav>
 
     <div class="container">
@@ -31,5 +28,26 @@
 
         {% block content %}{% endblock %}
     </div>
+
+    <script>
+        // Fade the page out before moving to the next one
+        document.addEventListener("click", function (e) {
+            var a = e.target.closest("a");
+            if (!a || !a.href) return;
+            if (a.target === "_blank" || a.href.indexOf(location.origin) !== 0) return;
+            e.preventDefault();
+            document.body.classList.add("leaving");
+            setTimeout(function () { window.location = a.href; }, 300);
+        });
+
+        document.addEventListener("submit", function () {
+            document.body.classList.add("leaving");
+        });
+
+        // If the user presses the Back button, show the page again
+        window.addEventListener("pageshow", function () {
+            document.body.classList.remove("leaving");
+        });
+    </script>
 </body>
 </html>
